@@ -8,6 +8,7 @@ import {
   legacyRegistrar as legacyRegistrarInterfaceId,
   permanentRegistrar as permanentRegistrarInterfaceId
 } from '../constants/interfaces'
+import DNSRegistrarJS from '@ensdomains/dnsregistrar'
 let ethRegistrar
 let ethRegistrarRead
 let permanentRegistrar
@@ -182,6 +183,34 @@ export const getPermanentEntry = async name => {
     return obj
   }
 }
+
+export const getDNSEntry = async (name, tldOwner, owner) => {
+  const web3Read = await getWeb3Read()
+  const provider = web3Read.currentProvider
+  const registrarjs = new DNSRegistrarJS(provider, tldOwner);
+  let obj = {}
+  try{
+    const claim = await registrarjs.claim(name)
+    console.log('getDNSEntry3', {claim})
+    const result = claim.getResult();
+    console.log('getDNSEntry4', {result})
+    const dnsOwner = claim.getOwner()
+    const proofs = result.proofs
+    let proof = proofs[proofs.length - 1]
+    let proven = await claim.oracle.knownProof(proof)
+    console.log({proven, dnsOwner,  owner})
+    if(proven.matched){
+      obj.state = 'DNSSEC Record up to date';
+    } else if(dnsOwner !== owner){
+      obj.state = 'DNSSEC Record out of date'
+    }
+  }catch(e){
+    obj.state = 'DNS Record Not Found'
+  }
+  console.log('getDNSEntry', {obj})
+  return obj
+}
+
 
 export const getDeed = async address => {
   const web3Read = await getWeb3Read()

@@ -193,6 +193,17 @@ class NameDetails extends Component {
                   />
                 )}
 
+                {/* To be replaced with a logic a function to detect dnsregistrar */}
+                {domain.parent === 'xyz' ? (
+                  <>
+                    <DetailsItemEditable
+                      domain={domain}
+                      keyName="Status"
+                      value={domain.state}
+                    />
+                  </>
+                ) : '' }
+
                 {domain.registrationDate ? (
                   <DetailsItem uneditable>
                     <DetailsKey>Registration Date</DetailsKey>
