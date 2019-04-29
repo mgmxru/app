@@ -17,7 +17,9 @@ import {
   SET_ADDRESS,
   SET_CONTENT,
   SET_CONTENTHASH,
-  SET_REGISTRANT
+  SET_REGISTRANT,
+  RECLAIM,
+  RENEW
 } from '../../graphql/mutations'
 
 import NameClaimTestDomain from './NameClaimTestDomain'
@@ -44,6 +46,14 @@ const ExpirationDetailsValue = styled(DetailsValue)`
 function canClaim(domain) {
   if (!domain.name.match(/\.test$/)) return false
   return parseInt(domain.owner) === 0 || domain.expiryTime < new Date()
+}
+
+function showTransfer(domain, isDeedOwner, isPermanentRegistrarDeployed) {
+  return (
+    isPermanentRegistrarDeployed &&
+    isDeedOwner &&
+    domain.currentBlockDate > domain.transferEndDate
+  )
 }
 
 class NameDetails extends Component {
@@ -75,6 +85,7 @@ class NameDetails extends Component {
     const { domain, isOwner, refetch, account } = this.props
     const isDeedOwner = domain.deedOwner === account
     const isRegistrant = domain.registrant === account
+    const isPermanentRegistrarDeployed = domain.available !== null
 
     const records = [
       {
@@ -107,8 +118,11 @@ class NameDetails extends Component {
           exact
           path="/name/:name"
           render={() => {
-            return isDeedOwner &&
-              domain.currentBlockDate > domain.transferEndDate ? (
+            return showTransfer(
+              domain,
+              isDeedOwner,
+              isPermanentRegistrarDeployed
+            ) ? (
               <Details data-testid="name-details">
                 <TransferRegistrars
                   label={domain.label}
@@ -137,9 +151,9 @@ class NameDetails extends Component {
                   <>
                     <DetailsItemEditable
                       domain={domain}
-                      keyName="Owner"
+                      keyName="Registrant"
                       value={domain.registrant}
-                      isOwner={isRegistrant}
+                      canEdit={isRegistrant}
                       type="address"
                       editButton="Transfer"
                       mutationButton="Transfer"
@@ -151,13 +165,13 @@ class NameDetails extends Component {
                       domain={domain}
                       keyName="Controller"
                       value={domain.owner}
-                      isOwner={isOwner}
+                      canEdit={isOwner || isRegistrant}
                       deedOwner={domain.deedOwner}
                       isDeedOwner={isDeedOwner}
                       type="address"
-                      editButton="Set"
-                      mutationButton="Set"
-                      mutation={SET_OWNER}
+                      editButton={isRegistrant ? 'Set' : 'Transfer'}
+                      mutationButton={isRegistrant ? 'Set' : 'Transfer'}
+                      mutation={isRegistrant ? RECLAIM : SET_OWNER}
                       refetch={refetch}
                       confirm={true}
                     />
@@ -165,9 +179,9 @@ class NameDetails extends Component {
                 ) : (
                   <DetailsItemEditable
                     domain={domain}
-                    keyName="Owner"
+                    keyName="Controller"
                     value={domain.owner}
-                    isOwner={isOwner}
+                    canEdit={isOwner}
                     deedOwner={domain.deedOwner}
                     isDeedOwner={isDeedOwner}
                     type="address"
@@ -190,34 +204,51 @@ class NameDetails extends Component {
                   ''
                 )}
                 {domain.expiryTime ? (
-                  <DetailsItem uneditable>
-                    <DetailsKey>Expiration Date</DetailsKey>
-                    <ExpirationDetailsValue
-                      isExpired={domain.expiryTime < new Date()}
-                    >
-                      {formatDate(domain.expiryTime)}
-                    </ExpirationDetailsValue>
-                  </DetailsItem>
+                  domain.isNewRegistrar ? (
+                    <DetailsItemEditable
+                      domain={domain}
+                      keyName="Expiration Date"
+                      value={domain.expiryTime}
+                      canEdit={parseInt(account, 16) !== 0}
+                      type="date"
+                      editButton="Renew"
+                      mutationButton="Renew"
+                      mutation={RENEW}
+                      refetch={refetch}
+                      confirm={true}
+                    />
+                  ) : (
+                    <DetailsItem uneditable>
+                      <DetailsKey>Expiration Date</DetailsKey>
+                      <ExpirationDetailsValue
+                        isExpired={domain.expiryTime < new Date()}
+                      >
+                        {formatDate(domain.expiryTime)}
+                      </ExpirationDetailsValue>
+                    </DetailsItem>
+                  )
                 ) : (
                   ''
                 )}
-                <TransferRegistrars
-                  label={domain.label}
-                  currentBlockDate={domain.currentBlockDate}
-                  transferEndDate={domain.transferEndDate}
-                  migrationStartDate={domain.migrationStartDate}
-                  refetch={refetch}
-                  parent={domain.parent}
-                  isOwner={isOwner}
-                  isDeedOwner={isDeedOwner}
-                  isNewRegistrar={domain.isNewRegistrar}
-                />
+                {isPermanentRegistrarDeployed && (
+                  <TransferRegistrars
+                    label={domain.label}
+                    currentBlockDate={domain.currentBlockDate}
+                    transferEndDate={domain.transferEndDate}
+                    migrationStartDate={domain.migrationStartDate}
+                    refetch={refetch}
+                    parent={domain.parent}
+                    isOwner={isOwner}
+                    isDeedOwner={isDeedOwner}
+                    isNewRegistrar={domain.isNewRegistrar}
+                  />
+                )}
                 <HR />
                 <DetailsItemEditable
                   keyName="Resolver"
                   type="address"
                   value={domain.resolver}
-                  isOwner={isOwner}
+                  canEdit={isOwner}
                   domain={domain}
                   editButton="Set"
                   mutationButton="Save"
