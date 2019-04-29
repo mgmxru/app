@@ -144,3 +144,9 @@ export const RELEASE_DEED = gql`
     releaseDeed(label: $label) @client
   }
 `
+
+export const SUBMIT_PROOF = gql`
+  mutation submitProof($hash: String) {
+    submitProof(label: $label) @client
+  }
+`

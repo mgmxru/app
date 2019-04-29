@@ -10,6 +10,7 @@ import DetailsItemEditable from './DetailsItemEditable'
 import AddRecord from './AddRecord'
 import SetupName from '../SetupName/SetupName'
 import TransferRegistrars from './TransferRegistrars'
+import dnsSecModes from '../../api/dnssecmodes'
 
 import {
   SET_OWNER,
@@ -18,6 +19,7 @@ import {
   SET_CONTENT,
   SET_CONTENTHASH,
   SET_REGISTRANT,
+  SUBMIT_PROOF,
   RECLAIM,
   RENEW
 } from '../../graphql/mutations'
@@ -198,8 +200,13 @@ class NameDetails extends Component {
                   <>
                     <DetailsItemEditable
                       domain={domain}
-                      keyName="Status"
-                      value={domain.state}
+                      keyName="State"
+                      canEdit={dnsSecModes[domain.state].action}
+                      value={dnsSecModes[domain.state].title}
+                      editButton={dnsSecModes[domain.state].button}
+                      mutation={SUBMIT_PROOF}
+                      mutationButton={dnsSecModes[domain.state].button}
+                      confirm={false}
                     />
                   </>
                 ) : '' }

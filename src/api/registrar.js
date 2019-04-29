@@ -191,23 +191,39 @@ export const getDNSEntry = async (name, tldOwner, owner) => {
   let obj = {}
   try{
     const claim = await registrarjs.claim(name)
-    console.log('getDNSEntry3', {claim})
     const result = claim.getResult();
-    console.log('getDNSEntry4', {result})
-    const dnsOwner = claim.getOwner()
-    const proofs = result.proofs
-    let proof = proofs[proofs.length - 1]
-    let proven = await claim.oracle.knownProof(proof)
-    console.log({proven, dnsOwner,  owner})
-    if(proven.matched){
-      obj.state = 'DNSSEC Record up to date';
-    } else if(dnsOwner !== owner){
-      obj.state = 'DNSSEC Record out of date'
+    if(result.found){
+      const dnsOwner = claim.getOwner()
+      const proofs = result.proofs
+      const proof = proofs[proofs.length - 1]
+      const proven = await claim.oracle.knownProof(proof)  
+      if(proven.matched){
+        obj.state = 5
+      } else if(!owner){
+        obj.state = 4
+      } else if(dnsOwner !== owner){
+        obj.state = 6
+      } else{
+        if(owner){
+          obj.state = 7
+        }else{
+          obj.state = 3
+        }
+      } 
+    }else{
+      if(result.nsec){
+        if(owner){
+          obj.state = 7
+        }else{
+          obj.state = 2
+        }
+      }else{
+        obj.state = 1
+      }
     }
   }catch(e){
-    obj.state = 'DNS Record Not Found'
+    obj.state = 0
   }
-  console.log('getDNSEntry', {obj})
   return obj
 }
 
@@ -432,4 +448,7 @@ export const releaseDeed = async label => {
       from: account,
       gas: gas
     })
+}
+
+export const submitProof = async label => {
 }
