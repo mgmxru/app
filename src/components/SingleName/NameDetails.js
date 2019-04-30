@@ -4,6 +4,7 @@ import { Link, Route } from 'react-router-dom'
 
 import { HR } from '../Typography/Basic'
 import SubDomains from './SubDomains'
+import SubmitProof from './SubmitProof'
 import { DetailsItem, DetailsKey, DetailsValue } from './DetailsItem'
 import RecordsItem from './RecordsItem'
 import DetailsItemEditable from './DetailsItemEditable'
@@ -19,7 +20,6 @@ import {
   SET_CONTENT,
   SET_CONTENTHASH,
   SET_REGISTRANT,
-  SUBMIT_PROOF,
   RECLAIM,
   RENEW
 } from '../../graphql/mutations'
@@ -197,18 +197,20 @@ class NameDetails extends Component {
 
                 {/* To be replaced with a logic a function to detect dnsregistrar */}
                 {domain.parent === 'xyz' ? (
-                  <>
-                    <DetailsItemEditable
-                      domain={domain}
-                      keyName="State"
-                      canEdit={dnsSecModes[domain.state].action}
-                      value={dnsSecModes[domain.state].title}
-                      editButton={dnsSecModes[domain.state].button}
-                      mutation={SUBMIT_PROOF}
-                      mutationButton={dnsSecModes[domain.state].button}
-                      confirm={false}
-                    />
-                  </>
+                  <DetailsItem uneditable>
+                  <DetailsKey>State</DetailsKey>
+                  <DetailsValue>
+                    { dnsSecModes[domain.state].title }
+                  </DetailsValue>
+                  {
+                    (dnsSecModes[domain.state].action ? (
+                      <SubmitProof
+                        refetch={refetch}
+                        actionText={ dnsSecModes[domain.state].button }
+                      />
+                    ): (''))
+                  }
+                  </DetailsItem>
                 ) : '' }
 
                 {domain.registrationDate ? (

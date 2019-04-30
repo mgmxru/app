@@ -146,7 +146,7 @@ export const RELEASE_DEED = gql`
 `
 
 export const SUBMIT_PROOF = gql`
-  mutation submitProof($hash: String) {
-    submitProof(label: $label) @client
+  mutation submitProof {
+    submitProof @client
   }
 `

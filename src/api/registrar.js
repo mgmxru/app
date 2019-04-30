@@ -15,6 +15,7 @@ let permanentRegistrar
 let permanentRegistrarRead
 let permanentRegistrarController
 let permanentRegistrarControllerRead
+let dnsRegistrar
 
 export const getLegacyAuctionRegistrar = async () => {
   if (ethRegistrar) {
@@ -185,46 +186,53 @@ export const getPermanentEntry = async name => {
 }
 
 export const getDNSEntry = async (name, tldOwner, owner) => {
+  if(dnsRegistrar){
+    return dnsRegistrar
+  }else{
+    dnsRegistrar = {}
+  }
   const web3Read = await getWeb3Read()
   const provider = web3Read.currentProvider
   const registrarjs = new DNSRegistrarJS(provider, tldOwner);
-  let obj = {}
   try{
     const claim = await registrarjs.claim(name)
     const result = claim.getResult();
+    dnsRegistrar.claim = claim
+    dnsRegistrar.result = result
     if(result.found){
       const dnsOwner = claim.getOwner()
       const proofs = result.proofs
       const proof = proofs[proofs.length - 1]
       const proven = await claim.oracle.knownProof(proof)  
       if(proven.matched){
-        obj.state = 5
+        dnsRegistrar.state = 5
       } else if(!owner){
-        obj.state = 4
+        dnsRegistrar.state = 4
       } else if(dnsOwner !== owner){
-        obj.state = 6
+        dnsRegistrar.state = 6
       } else{
         if(owner){
-          obj.state = 7
+          dnsRegistrar.state = 7
         }else{
-          obj.state = 3
+          dnsRegistrar.state = 3
         }
       } 
     }else{
       if(result.nsec){
         if(owner){
-          obj.state = 7
+          dnsRegistrar.state = 7
         }else{
-          obj.state = 2
+          dnsRegistrar.state = 2
         }
       }else{
-        obj.state = 1
+        dnsRegistrar.state = 1
       }
     }
   }catch(e){
-    obj.state = 0
+    console.log(e)
+    dnsRegistrar.state = 0
   }
-  return obj
+  return dnsRegistrar
 }
 
 
@@ -450,5 +458,21 @@ export const releaseDeed = async label => {
     })
 }
 
-export const submitProof = async label => {
+export const submitProof = async () => {
+  const { claim, result } = await getDNSEntry() 
+  const account = await getAccount() 
+  const data = await claim.oracle.getAllProofs(result, {});
+  const allProven = await claim.oracle.allProven(result)
+  let tx
+  if(allProven){
+    tx = claim.registrar.methods.claim(claim.encodedName, data[1])
+  }else{
+    tx = claim.registrar.methods.proveAndClaim(claim.encodedName, data[0], data[1])
+  }
+  const gas = await tx.estimateGas({ from: account })
+  return () =>
+    tx.send({
+      from: account,
+      gas: gas
+    })
 }
