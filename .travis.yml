@@ -33,6 +33,7 @@ jobs:
         - cd graph-node/docker && docker-compose up &
         - cd ../../
         - pwd
+        - ls -l
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
         - cd ens-subgraph && yarn && yarn setup && cd ../
       script: 'yarn cypress:ci'
