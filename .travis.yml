@@ -32,7 +32,7 @@ jobs:
         - git clone https://github.com/graphprotocol/graph-node
         - cd graph-node/docker && docker-compose up &
         - cd ../../../
-        - cd ens-app && yarn preTest && yarn subgraph && cd ../
+        - cd ensdomains/ens-app && yarn preTest && yarn subgraph && cd ../
         - cd ens-subgraph && yarn && yarn setup && cd ../
       script: 'yarn cypress:ci'
     - stage: deploy
