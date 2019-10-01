@@ -34,7 +34,7 @@ jobs:
         - cd ens-subgraph && yarn && cd ../
         - git clone https://github.com/graphprotocol/graph-node
         - cd graph-node/docker
-        - rm rf data
+        - rm -rf data
         - docker-compose up -d
         - sleep 60
         - cd ../../
