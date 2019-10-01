@@ -36,7 +36,7 @@ jobs:
         - cd graph-node/docker
         - docker-compose up &
         - sleep 15
-        - ls -l
+        - cd ../../
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
         - cd ens-subgraph && yarn && yarn setup && cd ../
       script: 'yarn cypress:ci'
