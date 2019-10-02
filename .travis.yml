@@ -28,6 +28,7 @@ jobs:
         - yarn global add wait-on
       before_script:
         - sudo service postgresql stop
+        - sudo apt-get install libsecret-1-dev
         - ganache-cli >ganache.log 2>&1 &
         - sleep 5
         - cd ../ && git clone https://github.com/ensdomains/ens-subgraph.git
