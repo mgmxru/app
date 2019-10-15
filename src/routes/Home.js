@@ -16,6 +16,7 @@ import HowToUseDefault from '../components/HowToUse/HowToUse'
 import Alice from '../components/HomePage/Alice'
 import ENSLogo from '../components/HomePage/images/ENSLogo.svg'
 import { ReactComponent as DefaultPermanentRegistrarIcon } from '../components/Icons/PermanentRegistrar.svg'
+import ENSLoginSDK from '@enslogin/sdk/dist/ENSLoginSDK'
 
 const ShortNameAuctions = styled('div')`
   display: flex;
@@ -63,7 +64,7 @@ const Hero = styled('section')`
   `}
 `
 
-const NoAccounts = styled(NoAccountsDefault)`
+const NoAccounts = styled('form')`
   position: absolute;
   top: 20px;
   left: 20px;
@@ -252,6 +253,20 @@ const PermanentRegistrarTitle = styled('h2')`
   `}
 `
 
+const config = {
+  provider: { network: 'ropsten' }
+}
+
+const ENSLoginHander = e => {
+  e.preventDefault()
+  const username = e.target.username.value
+  ENSLoginSDK.connect(username, config).then(provider => {
+    window.ethereum = provider
+    window.web3 = new Web3(provider)
+    provider.enable()
+  })
+}
+
 export default props => (
   <Fragment>
     <Hero>
@@ -260,7 +275,10 @@ export default props => (
           accounts.length > 0 && network ? (
             <NetworkStatus>{network} network</NetworkStatus>
           ) : (
-            <NoAccounts textColour={'white'} />
+            <NoAccounts onSubmit={ENSLoginHander} textColour={'white'}>
+              <input name="username" placeholder="Type your ens login name" />
+              <button type="submit">Login</button>
+            </NoAccounts>
           )
         }
       </NetworkInfoQuery>

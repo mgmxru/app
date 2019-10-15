@@ -58,10 +58,7 @@ const NoAccounts = ({
     onClick={onClick}
     active={active}
     textColour={textColour}
-  >
-    <Exclamation active={active} colour={colour} />
-    <span>No Accounts</span>
-  </NoAccountsContainer>
+  />
 )
 
 export default NoAccounts
