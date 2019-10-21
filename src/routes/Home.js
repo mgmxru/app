@@ -15,6 +15,7 @@ import QuestionMarkDefault from '../components/Icons/QuestionMark'
 import HowToUseDefault from '../components/HowToUse/HowToUse'
 import Alice from '../components/HomePage/Alice'
 import ENSLogo from '../components/HomePage/images/ENSLogo.svg'
+import Web3 from 'web3'
 import { ReactComponent as DefaultPermanentRegistrarIcon } from '../components/Icons/PermanentRegistrar.svg'
 import ENSLoginSDK from '@enslogin/sdk/dist/ENSLoginSDK'
 
