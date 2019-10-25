@@ -34,6 +34,18 @@ export const GET_OWNER = gql`
   }
 `
 
+export const GET_TEXT = gql`
+  query getText($name: String, $key: String) {
+    getText(name: $name, key: $key) @client
+  }
+`
+
+export const GET_ADDR = gql`
+  query getAddr($name: String, $key: String) {
+    getAddr(name: $name, key: $key) @client
+  }
+`
+
 export const GET_SINGLE_NAME = gql`
   query singleName($name: String) {
     singleName(name: $name) @client {

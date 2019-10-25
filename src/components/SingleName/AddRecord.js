@@ -3,21 +3,22 @@ import styled from '@emotion/styled'
 import { Mutation } from 'react-apollo'
 
 import { validateRecord } from '../../utils/records'
-import DetailsItemInput from './DetailsItemInput'
-
 import { useEditable } from '../hooks'
-
-import SaveCancel from './SaveCancel'
-import DefaultSelect from '../Forms/Select'
-import PendingTx from '../PendingTx'
-
-import { getOldContentWarning } from './warnings'
 import {
   SET_CONTENT,
   SET_CONTENTHASH,
-  SET_ADDRESS
+  SET_ADDRESS,
+  SET_ADDR,
+  SET_TEXT
 } from '../../graphql/mutations'
+import { getOldContentWarning } from './warnings'
+import TEXT_RECORD_KEYS from './TextRecord/constants'
+import { COIN_LIST } from './Address/constants'
 
+import DetailsItemInput from './DetailsItemInput'
+import SaveCancel from './SaveCancel'
+import DefaultSelect from '../Forms/Select'
+import PendingTx from '../PendingTx'
 import DefaultAddressInput from '@ensdomains/react-ens-address'
 
 const AddressInput = styled(DefaultAddressInput)`
@@ -75,13 +76,81 @@ function chooseMutation(recordType, contentType) {
       }
     case 'address':
       return SET_ADDRESS
+    case 'otherAddresses':
+      return SET_ADDR
+    case 'text':
+      return SET_TEXT
     default:
       throw new Error('Not a recognised record type')
   }
 }
 
-function Editable({ domain, emptyRecords, refetch }) {
+function TextRecordInput({
+  selectedRecord,
+  updateValue,
+  newValue,
+  selectedKey,
+  setSelectedKey,
+  isValid,
+  isInvalid
+}) {
+  return (
+    <>
+      <Select
+        selectedRecord={selectedKey}
+        handleChange={setSelectedKey}
+        placeholder="Key"
+        options={TEXT_RECORD_KEYS.map(key => ({
+          label: key,
+          value: key
+        }))}
+      />
+      <DetailsItemInput
+        newValue={newValue}
+        dataType={selectedRecord ? selectedRecord.value : null}
+        updateValue={updateValue}
+        isValid={isValid}
+        isInvalid={isInvalid}
+      />
+    </>
+  )
+}
+
+function AddressRecordInput({
+  selectedRecord,
+  updateValue,
+  newValue,
+  selectedKey,
+  setSelectedKey,
+  isValid,
+  isInvalid
+}) {
+  return (
+    <>
+      <Select
+        selectedRecord={selectedKey}
+        handleChange={setSelectedKey}
+        placeholder="Coin"
+        options={COIN_LIST.map(key => ({
+          label: key,
+          value: key
+        }))}
+      />
+      <DetailsItemInput
+        newValue={newValue}
+        dataType={selectedRecord ? selectedRecord.value : null}
+        updateValue={updateValue}
+        isValid={isValid}
+        isInvalid={isInvalid}
+        placeholder={selectedKey ? `Enter a ${selectedKey.value} address` : ''}
+      />
+    </>
+  )
+}
+
+function Editable({ domain, emptyRecords, refetch, setRecordAdded }) {
   const [selectedRecord, selectRecord] = useState(null)
+  const [selectedKey, setSelectedKey] = useState(null)
   const { state, actions } = useEditable()
 
   const handleChange = selectedRecord => {
@@ -117,6 +186,9 @@ function Editable({ domain, emptyRecords, refetch }) {
                 onConfirmed={() => {
                   setConfirmed()
                   refetch()
+                  if (selectedKey) {
+                    setRecordAdded(selectedKey.value)
+                  }
                 }}
               />
             ) : (
@@ -136,7 +208,17 @@ function Editable({ domain, emptyRecords, refetch }) {
               placeholder="Select a record"
               options={emptyRecords}
             />
-            {selectedRecord && selectedRecord.value === 'address' ? (
+            {selectedRecord && selectedRecord.value === 'otherAddresses' ? (
+              <AddressRecordInput
+                selectedRecord={selectedRecord}
+                newValue={newValue}
+                updateValue={updateValue}
+                selectedKey={selectedKey}
+                setSelectedKey={setSelectedKey}
+                isValid={isValid}
+                isInvalid={isInvalid}
+              />
+            ) : selectedRecord && selectedRecord.value === 'address' ? (
               <AddressInput
                 provider={window.ethereum || window.web3}
                 onResolve={({ address }) => {
@@ -146,6 +228,16 @@ function Editable({ domain, emptyRecords, refetch }) {
                     updateValue('')
                   }
                 }}
+              />
+            ) : selectedRecord && selectedRecord.value === 'text' ? (
+              <TextRecordInput
+                selectedRecord={selectedRecord}
+                newValue={newValue}
+                updateValue={updateValue}
+                selectedKey={selectedKey}
+                setSelectedKey={setSelectedKey}
+                isValid={isValid}
+                isInvalid={isInvalid}
               />
             ) : (
               <DetailsItemInput
@@ -163,7 +255,8 @@ function Editable({ domain, emptyRecords, refetch }) {
               mutation={chooseMutation(selectedRecord, domain.contentType)}
               variables={{
                 name: domain.name,
-                recordValue: newValue
+                recordValue: newValue,
+                key: selectedKey && selectedKey.value
               }}
               onCompleted={data => {
                 startPending(Object.values(data)[0])

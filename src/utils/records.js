@@ -23,6 +23,10 @@ export function validateRecord(record) {
       } else {
         return false
       }
+    case 'text':
+      return true
+    case 'otherAddresses':
+      return true
     default:
       throw new Error('Unrecognised record type')
   }

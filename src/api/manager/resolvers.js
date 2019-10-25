@@ -9,12 +9,16 @@ import {
   getName,
   getNetworkId,
   getAddress,
+  getAddr,
+  getText,
   claimAndSetReverseRecordName,
   setOwner,
   setResolver,
   setAddress,
+  setAddr,
   setContent,
   setContenthash,
+  setText,
   registerTestdomain,
   createSubdomain,
   expiryTimes,
@@ -151,6 +155,56 @@ async function getSubDomainSaleEntry(name) {
   }
 }
 
+function adjustForShortNames(node) {
+  const nameArray = node.name.split('.')
+  const { label, parent } = node
+
+  // return original node if is subdomain or not eth
+  if (nameArray.length > 2 || parent !== 'eth' || label.length > 6) return node
+
+  //if the auctions are over
+  if (new Date() > new Date(1570924800000)) {
+    return node
+  }
+
+  let auctionEnds
+  let onAuction = true
+
+  if (label.length >= 5) {
+    auctionEnds = new Date(1569715200000) // 29 September
+  } else if (label.length >= 4) {
+    auctionEnds = new Date(1570320000000) // 6 October
+  } else if (label.length >= 3) {
+    auctionEnds = new Date(1570924800000) // 13 October
+  }
+
+  if (new Date() > auctionEnds) {
+    onAuction = false
+  }
+
+  return {
+    ...node,
+    auctionEnds,
+    onAuction,
+    state: onAuction ? 'Auction' : node.state
+  }
+}
+
+function setState(node) {
+  let state = node.state
+  if (node.isDNSRegistrar) {
+    return node
+  }
+
+  if (parseInt(node.owner, 16) !== 0) {
+    state = 'Owned'
+  }
+  return {
+    ...node,
+    state
+  }
+}
+
 const resolvers = {
   Query: {
     getOwner: async (_, { name }, { cache }) => {
@@ -184,7 +238,8 @@ const resolvers = {
           isDNSRegistrar: null,
           dnsOwner: null,
           deedOwner: null,
-          registrant: null
+          registrant: null,
+          auctionEnds: null // remove when auction is over
         }
 
         const dataSources = [
@@ -207,7 +262,7 @@ const resolvers = {
 
         const { names } = cache.readQuery({ query: GET_ALL_NODES })
 
-        var detailedNode = {
+        let detailedNode = adjustForShortNames({
           ...node,
           ...registrarEntry,
           ...domainDetails,
@@ -217,7 +272,9 @@ const resolvers = {
           parent,
           parentOwner,
           __typename: 'Node'
-        }
+        })
+
+        detailedNode = setState(detailedNode)
 
         const data = {
           names: [...names, detailedNode]
@@ -231,7 +288,6 @@ const resolvers = {
       }
     },
     getSubDomains: async (_, { name }, { cache }) => {
-      console.log(name)
       const data = cache.readQuery({ query: GET_ALL_NODES })
       const rawSubDomains = await getSubdomains(name)
       const subDomains = rawSubDomains.map(s => ({
@@ -293,6 +349,22 @@ const resolvers = {
           match: false
         }
       }
+    },
+    getText: async (_, { name, key }) => {
+      const text = await getText(name, key)
+      if (text === '') {
+        return null
+      }
+
+      return text
+    },
+    getAddr: async (_, { name, key }) => {
+      const address = await getAddr(name, key)
+      if (address === '') {
+        return null
+      }
+
+      return address
     }
   },
   Mutation: {
@@ -340,6 +412,15 @@ const resolvers = {
         console.log(e)
       }
     },
+    setAddr: async (_, { name, key, recordValue }, { cache }) => {
+      console.log(name, key, recordValue)
+      try {
+        const tx = await setAddr(name, key, recordValue)
+        return sendHelper(tx)
+      } catch (e) {
+        console.log(e)
+      }
+    },
     setContent: async (_, { name, recordValue }, { cache }) => {
       try {
         const tx = await setContent(name, recordValue)
@@ -351,6 +432,14 @@ const resolvers = {
     setContenthash: async (_, { name, recordValue }, { cache }) => {
       try {
         const tx = await setContenthash(name, recordValue)
+        return sendHelper(tx)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    setText: async (_, { name, key, recordValue }, { cache }) => {
+      try {
+        const tx = await setText(name, key, recordValue)
         return sendHelper(tx)
       } catch (e) {
         console.log(e)
