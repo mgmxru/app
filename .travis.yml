@@ -10,7 +10,7 @@ node_js:
 cache:
   yarn: true
   directories:
-    - /home/travis/.cache/Cypress
+    - ~/.cache
 
 matrix:
   allow_failures:
