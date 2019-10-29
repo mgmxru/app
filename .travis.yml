@@ -9,8 +9,7 @@ dist: trusty
 language: node_js
 
 node_js:
-  - '11'
-#
+  - '8.11.4'
 
 cache: yarn
 
