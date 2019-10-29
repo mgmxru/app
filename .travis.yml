@@ -5,9 +5,12 @@ dist: trusty
 language: node_js
 
 node_js:
-  - '10'
+  - '8.11.4'
 
-cache: yarn
+cache:
+  yarn: true
+  directories:
+    - .cache/Cypress
 
 matrix:
   allow_failures:
