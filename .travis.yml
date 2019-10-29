@@ -17,6 +17,7 @@ jobs:
       before_install:
         - npm install -g yarn
       install:
+        - yarn global add esm
         - yarn global add cypress
         - yarn global add ganache-cli@6.1.8
         - yarn global add wait-on
