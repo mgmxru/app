@@ -5,7 +5,7 @@ dist: trusty
 language: node_js
 
 node_js:
-  - stable
+  - 8.11.1
 
 matrix:
   allow_failures:
@@ -14,8 +14,6 @@ jobs:
   include:
     - stage: test
       name: 'Test'
-      before_install:
-        - npm install -g yarn
       install:
         - yarn
         - yarn global add cypress
