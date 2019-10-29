@@ -188,10 +188,11 @@ yarn codegen
 ```
 yarn create-local
 yarn deploy-local
+
 ```
 
 NOTE: If it raises error, try to delete `graph-node/docker/data` and startup the docker again.
 
-#### Confirm that you can query from browser
+#### Confirm that you can query from browser.
 
 <img width="1000" alt="Screenshot 2019-07-17 at 11 34 59" src="https://user-images.githubusercontent.com/2630/61370435-4fd7b280-a88a-11e9-80e6-ba6d5e13d0ee.png">
