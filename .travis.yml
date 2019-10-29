@@ -16,8 +16,9 @@ jobs:
   include:
     - stage: test
       name: 'Test'
+      before_install:
+        - npm install -g yarn
       install:
-        - yarn
         - yarn global add cypress
         - yarn global add ganache-cli@6.1.8
         - yarn global add wait-on
