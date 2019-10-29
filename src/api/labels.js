@@ -1,4 +1,3 @@
-import jsSHA3 from 'js-sha3'
 import { isEncodedLabelhash, decodeLabelhash } from '@ensdomains/ui'
 
 function getLabels() {

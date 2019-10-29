@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import styled from '@emotion/styled'
 import mq from 'mediaQuery'
 import { ExternalButtonLink } from '../Forms/Button'
-import jsSHA3 from 'js-sha3'
+import keccak256 from 'keccak256'
+
 import BigInt from 'big-integer'
 
 const ShortNameContainer = styled('div')`
@@ -41,7 +42,7 @@ const InnerWrapper = styled('div')`
 export default function ShortName({ name }) {
   const [urlReady, setUrlReady] = useState(false)
   const label = name.split('.')[0]
-  const labelhash = `${jsSHA3.keccak256(label.toLowerCase())}`
+  const labelhash = keccak256(label.toLowerCase()).toString('hex')
   const bn = BigInt(labelhash, 16)
   const decimalLabelHash = bn.toString(10)
   const link = `https://opensea.io/assets/0xFaC7BEA255a6990f749363002136aF6556b31e04/${decimalLabelHash}`

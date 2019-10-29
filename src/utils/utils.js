@@ -7,7 +7,7 @@ import {
   isEncodedLabelhash,
   emptyAddress as _emptyAddress
 } from '@ensdomains/ui'
-import * as jsSHA3 from 'js-sha3'
+import keccak256 from 'keccak256'
 import { saveName } from '../api/labels'
 
 // From https://github.com/0xProject/0x-monorepo/blob/development/packages/utils/src/address_utils.ts
@@ -20,8 +20,9 @@ export const addressUtils = {
   isChecksumAddress(address) {
     // Check each case
     const unprefixedAddress = address.replace('0x', '')
-    const addressHash = jsSHA3.keccak256(unprefixedAddress.toLowerCase())
-
+    const addressHash = keccak256(unprefixedAddress.toLowerCase()).toString(
+      'hex'
+    )
     for (let i = 0; i < ADDRESS_LENGTH; i++) {
       // The nth letter should be uppercase if the nth digit of casemap is 1
       const hexBase = 16
