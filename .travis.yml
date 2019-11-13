@@ -40,7 +40,7 @@ jobs:
         - cd graph-node/docker
         - rm -rf data
         - docker-compose up -d
-        - sleep 60
+        - sleep 120
         - cd ../../
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
         - cd ens-subgraph && yarn && yarn setup && cd ../
