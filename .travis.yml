@@ -41,12 +41,12 @@ jobs:
         - ls
         - cd graph-node/docker
         - rm -rf data
-        - docker-compose up -d
+        - docker-compose up 2>&1 >/tmp/docker-compose.logs
         - sleep 120
         - docker-compose logs
         - cd ../../
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
-        - cd ens-subgraph && yarn && yarn setup && cd ../
+        - cd ens-subgraph && (yarn setup || cat /tmp/docker-compose.log ) && cd ../
       script: 'yarn cypress:ci'
     - stage: deploy
       name: 'Deploy to live'
