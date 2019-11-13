@@ -41,6 +41,7 @@ jobs:
         - rm -rf data
         - docker-compose up -d
         - sleep 120
+        - docker-compose logs
         - cd ../../
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
         - cd ens-subgraph && yarn && yarn setup && cd ../
