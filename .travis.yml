@@ -37,6 +37,8 @@ jobs:
         - cd ../ && git clone https://github.com/ensdomains/ens-subgraph.git
         - cd ens-subgraph && yarn && cd ../
         - git clone https://github.com/graphprotocol/graph-node
+        - pwd
+        - ls
         - cd graph-node/docker
         - rm -rf data
         - docker-compose up -d
