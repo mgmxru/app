@@ -369,7 +369,9 @@ const resolvers = {
   },
   Mutation: {
     registerTestdomain: async (_, { label }) => {
+      console.log('registerTestdomain1')
       const tx = await registerTestdomain(label)
+      console.log('registerTestdomain2', { tx })
       return sendHelper(tx)
     },
     setName: async (_, { name }) => {
