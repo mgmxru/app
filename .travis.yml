@@ -45,7 +45,7 @@ jobs:
         - sleep 120
         - cd ../../
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
-        - cd ens-subgraph && (yarn setup || docker-compose logs -f ~/graph-node/docker/docker-compose.yaml ) && cd ../
+        - cd ens-subgraph && (yarn setup || docker-compose -f ~/graph-node/docker/docker-compose.yaml logs ) && cd ../
       script: 'yarn cypress:ci'
     - stage: deploy
       name: 'Deploy to live'
