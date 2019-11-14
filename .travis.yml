@@ -38,13 +38,14 @@ jobs:
         - cd ens-subgraph && yarn && cd ../
         - git clone https://github.com/graphprotocol/graph-node
         - pwd
-        - ls
         - cd graph-node/docker
         - rm -rf data
         - docker-compose up -d
+        - ls /home/travis/build/ensdomains/graph-node/docker/docker-compose.yaml
         - sleep 120
         - cd ../../
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
+        - ls -ltr *
         - cd ens-subgraph && (yarn setup || docker-compose -f /home/travis/build/ensdomains/graph-node/docker/docker-compose.yaml logs ) && cd ../
       script: 'yarn cypress:ci'
     - stage: deploy
