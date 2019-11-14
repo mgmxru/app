@@ -41,7 +41,7 @@ jobs:
         - ls
         - cd graph-node/docker
         - rm -rf data
-        - docker-compose up 2>&1 >/tmp/docker-compose.logs
+        - docker-compose up 2>&1 >/tmp/docker-compose.logs &
         - sleep 120
         - docker-compose logs
         - cd ../../
