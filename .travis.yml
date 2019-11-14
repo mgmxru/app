@@ -49,7 +49,10 @@ jobs:
         - pwd
         - ls -ltr ~
         - cd ens-subgraph && (yarn setup || cat ~/docker-compose.log ) && cd ../
-      script: 'yarn cypress:ci'
+      script:
+        - pwd
+        - ls
+        - 'yarn cypress:ci'
     - stage: deploy
       name: 'Deploy to live'
       script: yarn deploy
