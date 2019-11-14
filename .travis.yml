@@ -40,7 +40,6 @@ jobs:
         - pwd
         - cd graph-node/docker
         - rm -rf data
-        - docker-compose up -d
         - docker-compose up 2>&1 > ~/docker-compose.log &
         - DOCKER_PATH=`pwd`
         - ls ~/docker-compose.log
