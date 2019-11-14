@@ -34,7 +34,9 @@ async function addTransaction({ txHash, txState }) {
 }
 
 export async function sendHelper(txObj) {
+  console.log('sendHelper1', { txObj })
   return new Promise(async (resolve, reject) => {
+    console.log('sendHelper2', { txObj })
     resolve(txObj.hash)
     let txState = 'Pending'
     addTransaction({ txHash: txObj.hash, txState })
