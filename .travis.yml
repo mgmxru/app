@@ -41,16 +41,15 @@ jobs:
         - cd graph-node/docker
         - rm -rf data
         - docker-compose up -d
+        - docker-compose up 2>&1 > ~/docker-compose.log &
         - DOCKER_PATH=`pwd`
-        - echo $DOCKER_PATH/docker-compose.yaml
-        - ls $DOCKER_PATH
+        - ls ~/docker-compose.log
         - sleep 120
         - cd ../../
         - cd ens-app && yarn preTest && yarn subgraph && cd ../
         - pwd
-        - ls -ltr *
-        - ls -ltr graph-node/*
-        - cd ens-subgraph && (yarn setup || docker-compose -f "$DOCKER_PATH/docker-compose.yaml" logs ) && cd ../
+        - ls -ltr ~
+        - cd ens-subgraph && (yarn setup || cat ~/docker-compose.log ) && cd ../
       script: 'yarn cypress:ci'
     - stage: deploy
       name: 'Deploy to live'
